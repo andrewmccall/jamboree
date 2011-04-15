@@ -88,7 +88,11 @@ public class AddressBookHttpMessageConverter extends AbstractHttpMessageConverte
     private static void write(Collection<Person> people, Writer writer) throws IOException {
 
         writer.append("[");
+        boolean first = true;
         for (Person p : people) {
+            if (!first)
+                writer.append(',');
+            first = false;
             write(p, writer);
         }
         writer.append("]");
