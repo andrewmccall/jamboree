@@ -12,19 +12,4 @@
     </context:component-scan>
 
 
-    <tx:annotation-driven/>
-
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="jamboree"/>
-    </bean>
-
-            <!-- TRANSACTION MANAGER -->
-    <bean id="transactionManager"
-          class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-
-
-
-
 </beans>

@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -73,16 +72,21 @@ public class AddressBookHttpMessageConverter extends AbstractHttpMessageConverte
     @Override
     protected void writeInternal(Object object, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
 
-        if (object.getClass().isAssignableFrom(Person.class)) {
+        if (Person.class.isAssignableFrom(object.getClass())) {
+
             write((Person) object, new OutputStreamWriter(outputMessage.getBody()));
 
-        } else if (object.getClass().isAssignableFrom(Collection.class)) {
+        } else if (Collection.class.isAssignableFrom(object.getClass())) {
+            if (log.isTraceEnabled())
+                log.trace("Writing collection: " + ((Collection<Person>) object).size());
+
             write((Collection<Person>) object, new OutputStreamWriter(outputMessage.getBody()));
         }
 
     }
 
     private static void write(Collection<Person> people, Writer writer) throws IOException {
+
         writer.append("[");
         for (Person p : people) {
             write(p, writer);
