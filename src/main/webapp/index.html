@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+    <title>Demo App</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/jquery-1.5.1.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            // show the list.
+            $.ajax({
+                url: "/addressbook",
+                success: showList,
+                dataType: "json"
+            });
+
+        });
+
+
+        function showForm(person) {
+
+            // Load the form.
+            $.ajax({
+                url: "/form.html",
+                success: function(data) {
+
+                    // Show the form
+                    $("#content").html(data);
+
+                    // If we have a person put them in the fields.
+                    if (!(person === undefined)) {
+                        $("#id").val(person.id);
+                        $("#firstname").val(person.firstname);
+                        $("#lastname").val(person.lastname);
+                        $("#phone").val(person.phone);
+                    }
+
+                    // Setup the submit
+                    $("form").bind("submit", person, function(event) {
+                        event.preventDefault();
+                        var person = {
+                            id : $("#id").val(),
+                            firstname : $("#firstname").val(),
+                            lastname : $("#lastname").val(),
+                            phone : $("#phone").val()
+                        };
+
+                        if (person.id == "") {
+                            addPerson(person);
+                        } else {
+                            updatePerson(person);
+                        }
+
+                    });
+                    $("#cancel").bind("click", function () {
+                        // show the list.
+                        $.ajax({
+                            url: "/addressbook",
+                            success: showList,
+                            dataType: "json"
+                        });
+                    });
+                }
+            });
+
+        }
+
+        function showList(addressbook) {
+
+            $.ajax({
+                url: "/list.html",
+                contentType: "application/json",
+                success: function(data) {
+                    $("#content").html(data);
+                    $("#add").bind("click", showForm);
+                    for (var i = 0; i < addressbook.length; i++) {
+                        showRow(addressbook[i]);
+                    }
+                }
+            });
+
+        }
+
+        function showRow(person) {
+
+            var tr = $("<tr class=\"id" + person.id + "\"><td>" + person.firstname + "</td><td>" + person.lastname + "</td><td>" + person.phone + "</td><td><a href=\"#\" class=\"edit\">edit</a> <a href=\"#\" class=\"delete\">delete</a></td></tr>");
+            $("#list").append(tr);
+
+            $(".id"+person.id+" a.edit").bind("click", person, function(event){
+                event.preventDefault();
+                showForm(event.data);
+            });
+
+            $(".id"+person.id+" a.delete").bind("click", person, function(event){
+                event.preventDefault();
+                $.ajax({
+                url: "/addressbook/person/" + event.data.id + "/",
+                type: "DELETE",
+                success: showList,
+                dataType: "json"
+            });
+            });
+
+
+        }
+
+        function addPerson(person) {
+            $.ajax({
+
+                url: "/addressbook/person",
+                type: "POST",
+                contentType: "application/json",
+                dataType : "json",
+                data: JSON.stringify(person),
+                success: function(data) {
+                    $(document).ready(function() {
+                        $.ajax({
+                            url: "/addressbook",
+                            success: showList,
+                            dataType: "json"
+                        });
+                    });
+
+                }
+            });
+        }
+
+        function updatePerson(person) {
+            $.ajax({
+
+                url: "/addressbook/person/" + person.id + "/",
+                type: "POST",
+                contentType: "application/json",
+                dataType : "json",
+                data: JSON.stringify(person),
+                success: function(data) {
+                    $(document).ready(function() {
+                        $.ajax({
+                            url: "/addressbook",
+                            success: showList,
+                            dataType: "json"
+                        });
+                    });
+
+                }
+            });
+        }
+
+
+    </script>
+
+</head>
+<div id="header">
+    <h1>A JSON Address Book</h1>
+</div>
+<div id="content"></div>
+<div id="footer">
+    &copy; 2011 Andrew McCall &lt;or whoever&gt;.
+</div>
+</html>
